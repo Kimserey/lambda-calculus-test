@@ -73,3 +73,26 @@
   ; ' is an abbreviation for quote.
   (datum->syntax stx `(cond [,(cadr xs) ,(caddr xs)]
                             [else ,(cadddr xs)])))
+
+
+; datum->syntax is a procedure going from a datum (a datum is a quoted s-expression) to a syntax (a datum with source location).
+; (require (for-syntax _)) requires a function for compile time - at compile time only racket/base is automatically required..
+(require (for-syntax racket/match))
+(define-syntax (our-if-using-match stx)
+  (match (syntax->list stx)
+    [(list name condition true-expr false-expr)
+     (datum->syntax stx `(cond [,condition ,true-expr]
+                               [else ,false-expr]))]))
+
+; begin-for-syntax is used to define procedures to be used within define-syntax (at compile time)
+(begin-for-syntax
+  (define (proc-for-my-syntax)
+    #'(displayln "hello")))
+(define-syntax (test stx)
+  (proc-for-my-syntax))
+
+; define-for-syntax is an abbreviation of (being-for-syntax (define _ _))
+(define-for-syntax (proc-for-my-syntax-v2)
+  #'(displayln "hello"))
+(define-syntax (test-v2 stx)
+  (proc-for-my-syntax-v2))
