@@ -196,3 +196,19 @@
        (with-syntax ([hash-table (car ids)]
                      [keys (cdr ids)])
          #'(hash-refs hash-table 'keys default)))]))
+
+; http://community.schemewiki.org/?anaphoric-if
+
+; (define current-foo (make-parameter "hello"))
+; (parameterize ([current-foo "world"]) (current-foo))
+
+(require racket/stxparam)
+(define-syntax-parameter it
+  (lambda (stx)
+    (raise-syntax-error (syntax-e stx) "can only be used inside aif")))
+(define-syntax-rule (aif condition true-expr false-expr)
+  (let ([tmp condition])
+    (if tmp
+        (syntax-parameterize ([it (make-rename-transformer #'tmp)])
+          true-expr)
+        false-expr)))

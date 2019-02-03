@@ -1,11 +1,16 @@
 #lang racket
 
-(require (for-syntax racket/syntax))
-(define-syntax (hyphen-define/ok3 stx)
-  (syntax-case stx ()
-    [(_ a b (args ...) body0 body ...)
-     (with-syntax ([name (format-id #'a "~a-~a" #'a #'b)])
-        #'(define (name args ...)
-                 body0 body ...))]))
+(require racket/match)
 
-(hyphen-define/ok3 foo bar () #t)
+(define (eval exp env)
+  (match exp
+    [`(λ ,v . ,e)   `(closure ,exp ,env)]
+    [`(,f ,e)        (apply (eval f env) (eval e env))]
+    [(? symbol?)     (cadr (assq exp env))]))
+
+(define (apply f x) (match f
+  [`(closure (λ ,v . ,body) ,env)
+    (eval body (cons `(,v ,x) env))]))
+
+(display (eval (read) '()))
+(newline)
