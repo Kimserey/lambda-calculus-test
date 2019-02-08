@@ -1,23 +1,28 @@
 #lang racket
 (require racket/trace)
 
-(define fact
-  (λ (n)
-    (cond
-      [(zero? n) 1]
-      [else (* (fact (- n 1)) n)])))
+; A function f is defined by the rule that f(n)=n if n<3
+; and f(n)=f(n-1)+2f(n-2)+3f(n-3) if n≥3.
 
-(trace fact)
-(fact 5)
+(define (f n)
+  (cond
+    [(< n 3) n]
+    [else (+ (+ (f (- n 1)) (* 2 (f (- n 2)))) (* 3 (f (- n 3))))]))
 
-(define fact-tc
-  (λ (result n)
-    (cond
-      [(zero? n) result]
-      [else (fact-tc (* n result) (- n 1))])))
+; (trace f)
 
-(trace fact-tc)
-(fact-tc 1 5)
+(define (f-aps n a b c)
+  (cond
+    [(< n 3) n]
+    [(= n 3)
+     (+ c (+ (* 2 b) (* 3 a)))]
+    [else
+     (f-aps (- n 1) b c (+ c (+ (* 2 b) (* 3 a))))]))
 
-(define fact-cps
-  
+(define (f-2 n)
+  (f-aps n 0 1 2))
+
+(trace f-aps)
+
+(f 8)
+(f-2 8)
