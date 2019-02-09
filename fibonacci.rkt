@@ -31,7 +31,7 @@
         [(= n 1) b]
         [else (fibonacci-aps b (+ a b) (- n 1))])))
 
-(define fibonacci-2 (λ (n) (fibonacci-cps 0 1 n)))
+(define fibonacci-2 (λ (n) (fibonacci-aps 0 1 n)))
 
 ; tail recursive continuation passing style
 (define fibonacci-cps
@@ -45,14 +45,14 @@
 (define fibonacci-3 (λ (n) (fibonacci-cps n (λ (x y) y))))
 
 ; Removing recursion with Y combinator,
-; we define f-of-fibonacci, a function having fibonacci as fixpoint.
-; fibonacci = f-of-fibonacci(fibonacci)
+; we define F-fibonacci, a function having fibonacci as fixpoint.
+; fibonacci = F-fibonacci(fibonacci)
 (define Y
   (λ (f)
     ((λ (x) (x x))
      (λ (x) (f (λ (y) ((x x) y)))))))
 
-(define f-of-fibonacci
+(define F-fibonacci
   (λ (f)
     (λ (n)
       (cond
@@ -60,7 +60,7 @@
         [(= n 1) 1]
         [else (+ (f (- n 1)) (f (- n 2)))]))))
 
-(define fibonacci-4 (Y f-of-fibonacci))
+(define fibonacci-4 (Y F-fibonacci))
 
 
     
