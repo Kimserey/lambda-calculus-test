@@ -50,3 +50,8 @@
 ; as almost-factorial takes a function which is expected to be a "working" factorial,
 ; if we pass factorial, it will work since factorial is definitely working.
 
+(define Y
+  (λ (f)
+    (f (λ (x) (Y f) x))))
+
+(define factorial/2 (Y almost-factorial))
