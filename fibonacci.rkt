@@ -43,4 +43,24 @@
        (fibonacci-cps (- n 1) (λ (x y) (k y (+ x y))))])))
 
 (define fibonacci-3 (λ (n) (fibonacci-cps n (λ (x y) y))))
+
+; Removing recursion with Y combinator,
+; we define f-of-fibonacci, a function having fibonacci as fixpoint.
+; fibonacci = f-of-fibonacci(fibonacci)
+(define Y
+  (λ (f)
+    ((λ (x) (x x))
+     (λ (x) (f (λ (y) ((x x) y)))))))
+
+(define f-of-fibonacci
+  (λ (f)
+    (λ (n)
+      (cond
+        [(zero? n) 0]
+        [(= n 1) 1]
+        [else (+ (f (- n 1)) (f (- n 2)))]))))
+
+(define fibonacci-4 (Y f-of-fibonacci))
+
+
     
