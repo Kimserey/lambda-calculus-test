@@ -7,6 +7,7 @@
   (λ (n)
     (cond
       [(zero? n) 0]
+      [(= 1 n) 1]
       [else
        (define-values (a b tmp) (values 0 1 0))
        (for ([i (- n 1)])
@@ -37,7 +38,7 @@
 (define fibonacci-cps
   (λ (n k)
     (cond
-      [(zero? n) (k 0 0)]
+      [(zero? n) 0]
       [(= n 1) (k 0 1)]
       [else
        (fibonacci-cps (- n 1) (λ (x y) (k y (+ x y))))])))
@@ -62,5 +63,7 @@
 
 (define fibonacci-4 (Y F-fibonacci))
 
-
-    
+(trace fibonacci-0)
+(trace fibonacci-1)
+(trace fibonacci-aps)
+(trace fibonacci-cps)
