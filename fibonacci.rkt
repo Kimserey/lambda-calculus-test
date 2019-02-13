@@ -41,9 +41,9 @@
       [(zero? n) (k 0)]
       [(= n 1) (k 1)]
       [else
-       (fibonacci-1-cps
+       (fibonacci-cps
         (- n 1)
-        (λ (a) (fibonacci-1-cps (- n 2)
+        (λ (a) (fibonacci-cps (- n 2)
                                 (λ (b) (k (+ a b))))))])))
 
 (define fibonacci-3 (λ (n) (fibonacci-cps n (λ (x) x))))
@@ -68,5 +68,5 @@
 
 ;(trace fibonacci-0)
 ;(trace fibonacci-1)
-(trace fibonacci-aps)
+;(trace fibonacci-aps)
 ;(trace fibonacci-cps)
