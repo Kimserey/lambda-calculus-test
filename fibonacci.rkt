@@ -70,4 +70,4 @@
 ;(trace fibonacci-0)
 ;(trace fibonacci-1)
 ;(trace fibonacci-aps)
-(trace fibonacci-cps)
+;(trace fibonacci-cps)
