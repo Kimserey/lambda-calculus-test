@@ -40,10 +40,13 @@
                guess))
 
 ; fixed-point of newton-transform is g=0
-; y^2 = x
-; 0 = x - y^2
-; g(y) = x - y^2
-; resolve g=0 to find y, the solution to y=x^1/2 for a given x
+; Newton Method provides a way of better approximating the root of a function
+; finding r, a value of x for g(x)=0.
+; We can then use it to solve:
+;       y = x^1/2
+;     y^2 = x
+; y^2 - x = 0
+;
 
 (define (sqrt-2 x)
   (newton-method
