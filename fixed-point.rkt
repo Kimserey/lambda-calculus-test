@@ -39,11 +39,15 @@
   (fixed-point (newton-transform g)
                guess))
 
+; fixed-point of newton-transform is g=0
+; y^2 = x
+; 0 = x - y^2
+; g(y) = x - y^2
+; resolve g=0 to find y, the solution to y=x^1/2 for a given x
+
 (define (sqrt-2 x)
   (newton-method
-   (λ (y)
-     (- (square y) x))
-   1.0))
+   (λ (y) (- (square y) x)) 1.0))
 
 
 (require racket/trace)
