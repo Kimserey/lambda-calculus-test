@@ -30,6 +30,10 @@
     (/ (- (g (+ x dx)) (g x))
        dx)))
 
+(define (average-damp f)
+  (λ (x)
+    (average x (f x))))
+
 (define (newton-transform g)
   (λ (x)
     (- x (/ (g x)
@@ -39,11 +43,39 @@
   (fixed-point (newton-transform g)
                guess))
 
+(define (fixed-point-of-transform
+         g transform guess)
+  (fixed-point (transform g) guess))
+
+
+(define (sqrt-3 x)
+  (fixed-point-of-transform
+   (λ (y) (/ x y))
+   average-damp
+   1.0))
+   
+(define (sqrt-nm x)
+  (fixed-point-of-transform
+   (λ (y) (- x (square y)))
+   newton-transform
+   1.0))
+  
+
 ; fixed-point of newton-transform is g=0
 
 ; Newton Method provides a way of better approximating the root of a function.
 ; Better approximation using:
 ; f(x) = x - g(x)/g'(x)
+
+
+; y = sqrt(x)
+; 0 = x - y^2
+; f(y) = x - y^2 or f(y) = y^2 - x
+
+
+; x - (x - y^2) / 2y
+;
+
 
 ; Finding r, a value of x for g(x)=0.
 ; We can then use it to solve:
