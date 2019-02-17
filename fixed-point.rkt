@@ -40,17 +40,21 @@
                guess))
 
 ; fixed-point of newton-transform is g=0
-; Newton Method provides a way of better approximating the root of a function
-; finding r, a value of x for g(x)=0.
+
+; Newton Method provides a way of better approximating the root of a function.
+; Better approximation using:
+; f(x) = x - g(x)/g'(x)
+
+; Finding r, a value of x for g(x)=0.
 ; We can then use it to solve:
-;       y = x^1/2
-;     y^2 = x
-; y^2 - x = 0
-;
+;   y = x^1/2
+; y^2 = x
+;   0 = x - y^2
+; https://en.wikipedia.org/wiki/Newton%27s_method
 
 (define (sqrt-2 x)
   (newton-method
-   (λ (y) (- (square y) x)) 1.0))
+   (λ (y) (- x (square y))) 1.0))
 
 
 (require racket/trace)
