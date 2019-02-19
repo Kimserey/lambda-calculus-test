@@ -1,22 +1,21 @@
 #lang racket
 
-(define tolerance 0.00001)
+(define espilon 0.00001)
+
+(define (almost-equal? v1 v2) (< (abs (- v1 v2)) espilon))
+
+(define (fixed-point f initial-guess)
+  (define (apply x) 
+    (let ([ result (f x)])
+      (if (almost-equal? x result)
+        result
+        (apply result))))
+  (apply initial-guess))
 
 (define (average x y)
   (/ (+ x y) 2))
 
 (define (square x) (* x x))
-
-(define (fixed-point f first-guess)
-  (define (close-enough? v1 v2)
-    (< (abs (- v1 v2))
-       tolerance))
-  (define (try guess)
-    (let ((next (f guess)))
-      (if (close-enough? guess next)
-          next
-          (try next))))
-  (try first-guess))
 
 (define (sqrt x)
   (fixed-point
@@ -91,3 +90,6 @@
 
 (require racket/trace)
 (trace average)
+
+(trace fixed-point)
+(fixed-point cos 1.0)
