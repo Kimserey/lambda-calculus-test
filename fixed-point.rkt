@@ -4,6 +4,8 @@
 
 (define (almost-equal? v1 v2) (< (abs (- v1 v2)) espilon))
 
+(define (average x y) (/ (+ x y) 2))
+
 (define (fixed-point f initial-guess)
   (define (apply x) 
     (let ([ result (f x)])
@@ -12,8 +14,13 @@
         (apply result))))
   (apply initial-guess))
 
-(define (average x y)
-  (/ (+ x y) 2))
+(define (fixed-point-2 f initial-guess)
+  (define (apply x) 
+    (let ([result (f x)])
+      (if (almost-equal? x result)
+        result
+        (apply (average x result)))))
+  (apply initial-guess))
 
 (define (square x) (* x x))
 
@@ -22,7 +29,31 @@
    (λ (y) (average y (/ x y)))
    10.0))
 
-(define dx 0.00001)
+(define dx 0.000001) 
+
+(define (derivative f)
+  (λ (x)
+    (/ (- (f (+ x dx)) (f x)) dx)))
+
+(define (newton-method g y)
+  (- y (/ (g y) ((derivative g) y))))
+
+
+(define (fixed-point-3 f transform initial-guess)
+  (define (apply x) 
+    (let ([result (f x)])
+      (if (almost-equal? x result)
+        result
+        (apply (transform x result)))))
+  (apply initial-guess))
+
+(define (sqrt-4 x)
+  (fixed-point-3
+   (λ (y) (newton-method (λ (y) (- x (square y))) y))
+   (λ (x y) y)
+   1.0))
+
+
 
 (define (deriv g)
   (λ (x)
@@ -38,7 +69,7 @@
     (- x (/ (g x)
             ((deriv g) x)))))
 
-(define (newton-method g guess)
+(define (nt-method g guess)
   (fixed-point (newton-transform g)
                guess))
 
@@ -59,30 +90,6 @@
    newton-transform
    1.0))
   
-
-; fixed-point of newton-transform is g=0
-
-; Newton Method provides a way of better approximating the root of a function.
-; Better approximation using:
-; f(x) = x - g(x)/g'(x)
-
-
-; y = sqrt(x)
-; 0 = x - y^2
-; f(y) = x - y^2 or f(y) = y^2 - x
-
-
-; x - (x - y^2) / 2y
-;
-
-
-; Finding r, a value of x for g(x)=0.
-; We can then use it to solve:
-;   y = x^1/2
-; y^2 = x
-;   0 = x - y^2
-; https://en.wikipedia.org/wiki/Newton%27s_method
-
 (define (sqrt-2 x)
   (newton-method
    (λ (y) (- x (square y))) 1.0))
