@@ -35,3 +35,5 @@ TAGS
 
 # coredumps
 *.core
+
+img/
