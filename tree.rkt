@@ -34,3 +34,12 @@
                (r/g "basket D" "slots: 10 | apples: 0")))))))
 
 (send (pict->bitmap pic) save-file "img\\example.png" 'png)
+
+(define pic2 
+  (naive-layered
+   (c/o "limit 2" "10"
+              (list
+               (r/o "basket A" "implicit slots: 10 | apples: 5")
+               (r/g "basket B" "slots: 10 | apples: 0")))))
+
+(send (pict->bitmap pic2) save-file "img\\implicit_3.png" 'png)
