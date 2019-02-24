@@ -2,29 +2,41 @@
 
 (require pict pict/tree-layout)
 
-(define (circle t col children)
-  (tree-layout children #:pict (cc-superimpose (disk 50 #:color col) (text t))))
+(define (tree-layout/titled node title subtitle child)
+    (apply tree-layout #:pict (cc-superimpose node (vc-append (text title) (text subtitle))) child))
 
-(define (rectangle t col)
-  (tree-layout #:pict (cc-superimpose (filled-rectangle 100 50 #:color col) (text t))))
+(define (c/o title subtitle [child '()])
+  (tree-layout/titled (disk 70 #:color "orange") title subtitle child))
 
-(define tree (tree-layout ))
+(define (c/w title subtitle [child '()])
+  (tree-layout/titled (disk 70 #:color "white") title subtitle child))
 
-(define (build-layout tree)
-  (cond
-    [(not (pair? tree))
-     (tree-layout #:pict (cc-superimpose
-                          (filled-rectangle 100 50 #:color "gray")
-                          (text (symbol->string tree))))]
-    [else
-     (apply tree-layout
-            #:pict (cc-superimpose
-                    (disk 70 #:color "white")
-                    (text (symbol->string (car tree))))
-            (map build-layout (cdr tree)))]))
+(define (r/o title subtitle [child '()])
+  (tree-layout/titled (filled-rectangle 150 50 #:color "orange") title subtitle child))
 
-(define (draw tree) (naive-layered (build-layout tree)))
+(define (r/g title subtitle [child '()])
+  (tree-layout/titled (filled-rectangle 150 50 #:color "gray") title subtitle child))
 
-(draw '(limit/50
-        (limit/100 basket/200 basket/100)
-        (limit/50 basket/100 basket/10)))
+(naive-layered
+  (c/o "limit 1" "0"
+                (list
+                 (c/o "limit 2" "0"
+                      (list
+                       (r/o "basket 1" "limit: 0 | apples: 1")
+                       (r/g "basket 2" "limit: 0 | apples: 1")))
+                 (c/w "limit 3" "0"
+                      (list
+                       (r/g "basket 3" "limit: 0 | apples: 1")
+                       (r/g "basket 4" "limit: 0 | apples: 1"))))))
+
+(naive-layered
+  (c/o "limit 1" "0"
+                (list
+                 (c/w "limit 2" "0"
+                      (list
+                       (r/g "basket 1" "limit: 0 | apples: 1")
+                       (r/g "basket 2" "limit: 0 | apples: 1")))
+                 (c/o "limit 3" "0"
+                      (list
+                       (r/g "basket 3" "limit: 0 | apples: 1")
+                       (r/o "basket 4" "limit: 0 | apples: 1"))))))
