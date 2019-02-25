@@ -22,24 +22,15 @@
 
 (define pic 
   (naive-layered
-   (c/w "limit 1" "15"
+   (c/o "limit 1" "0"
         (list
          (c/w "limit 2" "10"
               (list
-               (r/g "basket A" "slots: 10 | apples: 0")
+               (r/g "basket A" "slots: 10 | apples: 10")
                (r/g "basket B" "slots: 10 | apples: 0")))
-         (c/w "limit 3" "20"
+         (c/o "limit 3" "15"
               (list
-               (r/g "basket C" "slots: 10 | apples: 0")
-               (r/g "basket D" "slots: 10 | apples: 0")))))))
+               (r/g "basket C" "slots: 5 | apples: 5")
+               (r/o "basket D" "implicit slots: 0 | apples: 0")))))))
 
 (send (pict->bitmap pic) save-file "img\\example.png" 'png)
-
-(define pic2 
-  (naive-layered
-   (c/o "limit 2" "10"
-              (list
-               (r/o "basket A" "implicit slots: 10 | apples: 5")
-               (r/g "basket B" "slots: 10 | apples: 0")))))
-
-(send (pict->bitmap pic2) save-file "img\\implicit_3.png" 'png)
