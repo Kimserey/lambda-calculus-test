@@ -39,10 +39,20 @@
 
 ; Finds the meeting point, cycle root, and length of cycle
 (define (cycle-detection init)
+  
+  ; Step 1: Traverses linked list with tortoise i and hare 2i
+  ; to find meeting point.
   (define meeting
     (traverse/result next next/next init init))
+
+  ; Step 2: Move hare back to beginning and traverse
+  ; to find cycle root at same speed i.
   (define root
-    (traverse/result next next init meeting))
+    (traverse/result next next meeting init))
+
+  ; Step 3: Keep tortoise in place and move hare
+  ; on the cycle to execute one full circle to find
+  ; the length.
   (define length
-    (traverse/count next identity root root))
+    (traverse/count identity next root root))
   (list meeting root length))
