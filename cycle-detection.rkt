@@ -13,10 +13,9 @@
 ; Finds the child given a parent
 (define (next parent)
   (define (find nodes parent)
-    (let* ([node (car nodes)]
-           [p (car node)]
-           [c (cdr node)])
-      (if (= parent p) c (find (cdr nodes) parent))))
+    (match nodes
+      [(list (cons p c) rest ...) #:when (= parent p) c]
+      [_ (find (cdr nodes) parent)]))
   (find nodes parent))
 
 (define (next/next x) (next (next x)))
