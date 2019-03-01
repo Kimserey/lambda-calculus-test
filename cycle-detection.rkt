@@ -55,4 +55,5 @@
   ; the length.
   (define length
     (traverse/count identity next root root))
+  
   (list meeting root length))
