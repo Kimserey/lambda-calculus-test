@@ -28,3 +28,38 @@
          right
         (append (symbols left) (symbols right))
         (+ (weight left) (weight right))))
+
+
+(define (choose-branch bit branch)
+  (cond
+    [(= 0 bit) (left-branch branch)]
+    [(= 1 bit) (right-branch branch)]
+    [else (error "bad bit: choose-branch" bit)]))
+
+(define (decode bits tree)
+  (define (decode-1 bits current-branch)
+    (if (null? bits)
+        '()
+        (let ([next-branch (choose-branch (car bits) current-branch)])
+          (if (leaf? next-branch)
+              (cons
+               (symbol-leaf next-branch)
+               (decode-1 (cdr bits) tree))
+              (decode-1 (cdr bits) next-branch)))))
+  (decode-1 bits tree))
+
+(define (adjoin-set x set)
+  (cond
+    [(null? set) (list x)]
+    [(< (weight x) (weight (car set))) (cons x set)]
+    [else (cons (car set)(adjoin-set x (cdr set)))]))
+
+(define (make-leaf-set pairs)
+  (if (null? pairs)
+      '()
+      (let ([pair (car pairs)])
+        (adjoin-set
+         (make-leaf (car pair)
+                    (cadr pair))
+         (make-leaf-set (cdr pairs))))))
+        
