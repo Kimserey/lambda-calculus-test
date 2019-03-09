@@ -22,8 +22,20 @@
 
 (define operations '())
 
-(define (put op types proc)
-  (set! operations (cons (list op types proc) operations)))
+(define (put op type-tags proc)
+  (set! operations (cons (list op type-tags proc) operations)))
+
+(define (get op type-tags)
+  (define (find operations-table)
+    (let ([operation (car operations-table)]
+          [rest (cdr operations-table)])
+      (cond
+        [(and (equal? (car operation) op)
+              (equal? (cadr operation) type-tags))
+         (caddr operation)]
+        [(null? rest) (error "Operation not found: GET" op type-tags)]
+        [else (find rest)])))
+  (find operations))
 
 ; Rectangular package
 ; The procedures are installed with '(rectangular),
@@ -90,4 +102,16 @@
        (lambda (r a) (tag (make-from-mag-ang r a))))
   'done)
 
- 
+; Install packages
+
+(install-rectangular-package)
+(install-polar-package)
+
+(define (apply-generic op . args)
+  (let ([type-tags (map type-tag args)])
+    (let ([proc (get op type-tags)])
+      (if proc
+          (apply proc (map contents args))
+          (error "No method for these types:
+                  APPLY-GENERIC"
+                 (list op type-tags))))))
