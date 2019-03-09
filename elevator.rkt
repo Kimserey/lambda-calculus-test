@@ -5,6 +5,13 @@
         [(eq? x (car xs)) #t]
         [else (contains x (cdr xs))]))
 
+(define (filter predicate xs)
+  (define (filter xs res)
+    (cond [(null? xs) res]
+          [(predicate (car xs)) (filter (cdr xs) (cons (car xs) res))]
+          [else (filter (cdr xs) res)]))
+  (filter xs '()))
+
 (define (any predicate xs)
   (cond [(null? xs) #f]
         [(predicate (car xs)) #t]
@@ -25,15 +32,18 @@
 
 (define (continue? direction level requests)
   (if (up? direction) (any (λ (l) (< level l)) requests) #f))
-        
-(define (get-requests) '(3 5 6 9))
+
+(define requests '(3 5 6 9 4))
+(define (remove-request level) (set! requests (filter (λ (l) (not (eq? l level))) requests)))
+(define (get-requests) requests)
 
 (define (move-elevator direction level)
   (let ([current-level (update-level direction level)]
         [requests (get-requests)])
     (if (open? current-level requests)
-        (displayln "open")
-        (displayln "skip"))
+        (displayln (format "Open ~a" current-level))
+        (displayln (format "Skip ~a" current-level)))
+    (remove-request level)
     (cond
       [(null? requests) 'done]
       [(continue? direction current-level requests) (move-elevator direction current-level)]
