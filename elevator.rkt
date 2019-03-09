@@ -23,8 +23,9 @@
 
 (define (open? level requests) (contains level requests))
 
-(define (continue? direction level requests) #t)
-
+(define (continue? direction level requests)
+  (if (up? direction) (any (λ (l) (< level l)) requests) #f))
+        
 (define (get-requests) '(3 5 6 9))
 
 (define (move-elevator direction level)
