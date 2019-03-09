@@ -23,6 +23,11 @@
   (eq? (type-tag z) 'polar))
 
 
+; We define constructors to create complex number. The datum
+; constructed is tagged with the constructor used.
+; The procedures to retrieve real/imaginary/magnitude/angle
+; differs depending on the representation constructed.
+
 ; Rectangular form
 
 (define (real-part-rectangular z) (car z))
@@ -70,3 +75,60 @@
    'polar
    (cons r a)))
 
+; Conditional Selectors
+; Each selector strips off the tag, and forward the
+; contents to the underlying layer.
+; At each layer, the datum is directed toward the appropriate operation,
+; while being reduced to its core values used for computation. 
+
+(define (real-part z)
+  (cond [(rectangular? z) (real-part-rectangular (contents z))]
+        [(polar? z) (real-part-polar (contents z))]
+        [else (error "Unknown type: REAL-PART" z)]))
+
+(define (imag-part z)
+  (cond [(rectangular? z) (imag-part-rectangular (contents z))]
+        [(polar? z) (imag-part-polar (contents z))]
+        [else (error "Unknown type: IMAG-PART" z)]))
+
+(define (magnitude z)
+  (cond [(rectangular? z) (magnitude-rectangular (contents z))]
+        [(polar? z) (magnitude-polar (contents z))]
+        [else (error "Unknown type: MAGNITUDE" z)]))
+
+(define (angle z)
+  (cond [(rectangular? z) (angle-rectangular (contents z))]
+        [(polar? z) (angle-polar (contents z))]
+        [else (error "Unknown type: ANGLE" z)]))
+
+; Make rectangular complex-number
+; using rectangular constructor 
+(define (make-from-real-imag x y)
+  (make-from-real-imag-rectangular x y))
+
+; Make polar complex-number
+; using polar constructor
+(define (make-from-mag-ang r a)
+  (make-from-mag-ang-polar r a))
+
+; Complex-number arithmetic operations
+
+(define (add-complex z1 z2)
+  (make-from-real-imag
+   (+ (real-part z1) (real-part z2))
+   (+ (imag-part z1) (imag-part z2))))
+
+(define (sub-complex z1 z2)
+  (make-from-real-imag
+   (- (real-part z1) (real-part z2))
+   (- (imag-part z1) (imag-part z2))))
+
+(define (mul-complex z1 z2)
+  (make-from-mag-ang
+   (* (magnitude z1) (magnitude z2))
+   (* (angle z1) (angle z2))))
+
+(define (div-complex z1 z2)
+  (make-from-mag-ang
+   (/ (magnitude z1) (magnitude z2))
+   (- (angle z1) (angle z2))))
