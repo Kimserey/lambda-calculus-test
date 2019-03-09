@@ -29,7 +29,7 @@
   (sqrt (+ (square (real-part z))
            (square (imag-part z)))))
 
-(define (angle z)
+(define (angle-rectangular z)
   (atan (imag-part z) (real-part z)))
 
 (define (make-from-real-imag x y)
