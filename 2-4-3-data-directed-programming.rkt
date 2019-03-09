@@ -38,9 +38,10 @@
   (find operations))
 
 ; Rectangular package
-; The procedures are installed with '(rectangular),
-; list of rectangular to cater for procedures accepting
+; The procedures are installed with '() list to cater for procedures accepting
 ; multiple arguments.
+; Therefore we treat the current procedures as '(rectangle),
+; a list of a single argument of type rectangular.
 ; The constructors need only a single 'rectangular as
 ; a constructor constructs a single value of a single type.
 
@@ -107,6 +108,10 @@
 (install-rectangular-package)
 (install-polar-package)
 
+; Apply generic procedure
+; '. args' is used to specify the rest of
+; the arguments as a list.
+
 (define (apply-generic op . args)
   (let ([type-tags (map type-tag args)])
     (let ([proc (get op type-tags)])
@@ -115,3 +120,8 @@
           (error "No method for these types:
                   APPLY-GENERIC"
                  (list op type-tags))))))
+
+; Generic Selectors
+
+(define (real-part z)
+  (apply-generic '
