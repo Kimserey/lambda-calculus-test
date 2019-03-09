@@ -43,8 +43,9 @@
     (if (open? current-level requests)
         (displayln (format "Open ~a" current-level))
         (displayln (format "Skip ~a" current-level)))
-    (remove-request level)
-    (cond
-      [(null? requests) 'done]
-      [(continue? direction current-level requests) (move-elevator direction current-level)]
-      [else (move-elevator (opposite direction) current-level)])))
+    (remove-request current-level)
+    (let ([requests (get-requests)])
+      (cond
+        [(null? requests) 'idle]
+        [(continue? direction current-level requests) (move-elevator direction current-level)]
+        [else (move-elevator (opposite direction) current-level)]))))
