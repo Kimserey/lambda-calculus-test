@@ -60,8 +60,8 @@
   (define (make-from-mag-ang r a)
     (cons (* r (cos a)) (* r (sin a))))
   
-  (define (tag x)
-    (attach-tag 'rectangular x))
+  (define (tag z)
+    (attach-tag 'rectangular z))
 
   (put 'real-part '(rectangular) real-part)
   (put 'imag-part '(rectangular) imag-part)
@@ -71,9 +71,11 @@
        (lambda (x y) (tag (make-from-real-imag x y))))
   (put 'make-from-mag-ang 'rectangular
        (lambda (r a) (tag (make-from-mag-ang r a))))
-  'done)
+  
+  'install-rectangular-package-done)
 
 ; Polar package
+; Trigonometry is used to find real and imaginary parts.
 
 (define (install-polar-package)
   (define (magnitude z) (car z))
@@ -90,8 +92,8 @@
   (define (make-from-real-imag x y)
      (cons (sqrt (+ (square x) (square y))) (atan y x)))
 
-  (define (tag x)
-    (attach-tag 'polar x))
+  (define (tag z)
+    (attach-tag 'polar z))
 
   (put 'real-part '(polar) real-part)
   (put 'imag-part '(polar) imag-part)
@@ -101,12 +103,8 @@
        (lambda (x y) (tag (make-from-real-imag x y))))
   (put 'make-from-mag-ang 'polar
        (lambda (r a) (tag (make-from-mag-ang r a))))
-  'done)
-
-; Install packages
-
-(install-rectangular-package)
-(install-polar-package)
+  
+  'install-polar-package-done)
 
 ; Apply generic procedure
 ; '. args' is used to specify the rest of
@@ -139,3 +137,17 @@
 
 (define (make-from-mag-ang r a)
   ((get 'make-from-mag-ang 'polar) r a))
+
+; Export procedures
+
+(provide install-rectangular-package
+         install-polar-package
+         attach-tag
+         put
+         get
+         operations
+         real-part
+         imag-part
+         magnitude
+         angle
+         apply-generic)
