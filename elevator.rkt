@@ -35,6 +35,7 @@
       (any (λ (l) (< level l)) requests)
       (any (λ (l) (> level l)) requests)))
 
+
 (define requests '(3 5 6 9 4))
 (define (remove-request level) (set! requests (filter (λ (l) (not (eq? l level))) requests)))
 (define (get-requests) requests)
