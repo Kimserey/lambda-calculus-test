@@ -10,8 +10,7 @@ def filter(predicate, xs):
     if not xs: 
       return res
     elif predicate(xs[0]):
-      res.append(xs[0])
-      return inner_filter(xs[1:], res)
+      return inner_filter(xs[1:], [*res, xs[0]])
     else:
       return inner_filter(xs[1:], res)
   return inner_filter(xs, [])
@@ -65,9 +64,9 @@ def move_elevator(direction, level):
   print ('+Direction {}'.format(direction))
 
   if open_door(current_level, requests):
-    print ('++Open {}'.format(current_level))
+    print ('+Open {}'.format(current_level))
   else:
-    print ('++Skip {}'.format(current_level))
+    print ('+Skip {}'.format(current_level))
 
   remove_request(current_level)
   updated_requests = get_requests()
