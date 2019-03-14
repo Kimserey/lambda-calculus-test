@@ -1,5 +1,8 @@
 #lang racket
 
+(define (gcd a b)
+  (let ([rest (modulo a b)])
+    (if (zero? rest) b (gcd b rest))))
 
 (define (num-type? type . xs)
   (if (null? xs)
@@ -8,96 +11,150 @@
            (equal? type (caar xs))
            (apply num-type? type (cdr xs)))))
 
-; numbers
-
-(define (make-num x)
-  (define (tag x) (cons 'num x))
-  (tag x))
+(define (get-tag x)
+  (if (pair? x)
+      (car x)
+      (error "Value provided is not tagged:"
+             x)))
 
 (define (value x)
   (if (pair? x)
       (cdr x)
       (error "Value provided isn't tagged:"
              x)))
+         
+(define op-table '())
+(define (get-op name tags)
+  (define (get ops)
+    (cond
+      [(null? ops) #f]
+      [(and
+        (equal? name (caar ops))
+        (equal? tags (cadar ops)))
+       (caddar ops)]
+      [else (get (cdr ops))]))
+  (get op-table))
+(define (set-op! name tags operation)
+  (set! op-table (cons (list name tags operation) op-table)))
 
-(define (num? . xs)
-  (apply num-type? 'num xs))
-  
-(define (add x y) 
-  (if (num? x y)
-      (make-num (+ (value x) (value y)))
-      (error "Values provided aren't numbers of type 'num:"
-             x y)))
+; numbers
 
-(define (sub x y) 
-  (if (num? x y)
-      (make-num (- (value x) (value y)))
-      (error "Values provided aren't numbers of type 'num:"
-             x y)))
+(define (install-number-package)
+  ; prelude procedures
+  (define (num? . xs)
+    (apply num-type? 'num xs))
 
-(define (mul x y) 
-  (if (num? x y)
-      (make-num (* (value x) (value y)))
-      (error "Values provided aren't numbers of type 'num:"
-             x y)))
+  ; constructor
+  (define (make x)
+    (define (tag x) (cons 'num x))
+    (tag x))
 
-(define (div x y) 
-  (if (num? x y)
-      (make-num (/ (value x) (value y)))
-      (error "Values provided aren't numbers of type 'num:"
-             x y)))
+  ; operations
+  (define (add x y) 
+    (if (num? x y)
+        (make (+ (value x) (value y)))
+        (error "Values provided aren't numbers of type 'num:"
+               x y)))
+
+  (define (sub x y) 
+    (if (num? x y)
+        (make (- (value x) (value y)))
+        (error "Values provided aren't numbers of type 'num:"
+               x y)))
+
+  (define (mul x y) 
+    (if (num? x y)
+        (make (* (value x) (value y)))
+        (error "Values provided aren't numbers of type 'num:"
+               x y)))
+
+  (define (div x y) 
+    (if (num? x y)
+        (make (/ (value x) (value y)))
+        (error "Values provided aren't numbers of type 'num:"
+               x y)))
+
+  ; populte op-table
+  (set-op! 'make 'num make)
+  (set-op! 'add '(num num) add)
+  (set-op! 'sub '(num num) sub)
+  (set-op! 'mul '(num num) mul)
+  (set-op! 'div '(num num) div)
+  'done)
+
+(define (make-num x) ((get-op 'make 'num) x))
 
 ; rationals
 
-(define (gcd a b)
-  (let ([rest (modulo a b)])
-    (if (zero? rest) b (gcd b rest))))
+(define (install-rational-package)
+  ; prelude procedures
+  (define (rat? . xs)
+    (apply num-type? 'rational xs))
 
-(define (make-rat n d) 
-  (define (tag x) (cons 'rational x))
-  (let ([g (gcd n d)])
-    (tag (cons (/ n g) (/ d g)))))
+  (define (numer x)
+    (if (rat? x)
+        (car (value x))
+        (error "Value provided isn't a rational number:"
+               x)))
 
-(define (rat? . xs)
-  (apply num-type? 'rational xs))
+  (define (denom x)
+    (if (rat? x)
+        (cdr (value x))
+        (error "Value provided isn't a rational number:"
+               x)))
 
-(define (numer x)
-  (if (rat? x)
-      (car (value x))
-      (error "Value provided isn't a rational number:"
-             x)))
+  ; constructor
+  (define (make n d) 
+    (define (tag x) (cons 'rational x))
+    (let ([g (gcd n d)])
+      (tag (cons (/ n g) (/ d g)))))
 
-(define (denom x)
-  (if (rat? x)
-      (cdr (value x))
-      (error "Value provided isn't a rational number:"
-             x)))
+  ; operations
+  (define (add r1 r2)
+    (if (rat? r1 r2)
+        (make (+ (* (numer r1) (denom r2)) (* (numer r2) (denom r1)))
+              (* (denom r1) (denom r2)))
+        (error "Values provided aren't rationals:"
+               r1 r2)))
 
+  (define (sub r1 r2)
+    (if (rat? r1 r2)
+        (make (- (* (numer r1) (denom r2)) (* (numer r2) (denom r1)))
+              (* (denom r1) (denom r2)))
+        (error "Values provided aren't rationals:"
+               r1 r2)))
 
-(define (add-rat r1 r2)
-  (if (rat? r1 r2)
-      (make-rat
-        (+ (* (numer r1) (denom r2)) (* (numer r2) (denom r1)))
-        (* (denom r1) (denom r2)))
-      (error "Values provided aren't rationals:"
-             r1 r2)))
+  (define (mul r1 r2)
+    (if (rat? r1 r2)
+        (make (* (numer r1) (numer r2))
+              (* (denom r1) (denom r2)))
+        (error "Values provided aren't rationals:"
+               r1 r2)))
 
-(define (sub-rat r1 r2)
-  (if (rat? r1 r2)
-      (make-rat
-        (- (* (numer r1) (denom r2)) (* (numer r2) (denom r1)))
-        (* (denom r1) (denom r2)))
-      (error "Values provided aren't rationals:"
-             r1 r2)))
+  (define (div r1 r2)
+    (mul r1 (make (denom r2) (numer r1))))
 
-(define (mul-rat r1 r2)
-  (if (rat? r1 r2)
-      (make-rat
-        (* (numer r1) (numer r2))
-        (* (denom r1) (denom r2)))
-      (error "Values provided aren't rationals:"
-             r1 r2)))
+  ; populate op-table
+  (set-op! 'make 'rational make)
+  (set-op! 'add '(rational rational) add)
+  (set-op! 'sub '(rational rational) sub)
+  (set-op! 'mul '(rational rational) mul)
+  (set-op! 'div '(rational rational) div)
+  'done)
 
-(define (div-rat r1 r2)
-  (mul-rat r1 (make-rat (denom r2) (numer r1))))
+(define (make-rat n d) ((get-op 'make 'rational) n d))
 
+; generic operations
+
+(define (apply-operation name . args)
+  (let* ([tags (map get-tag args)]
+         [op (get-op name tags)])
+    (if op
+        (apply op args)
+        (error "No operation found for:"
+               name args tags))))
+
+(define (add x y) (apply-operation 'add x y))
+(define (sub x y) (apply-operation 'sub x y))
+(define (mul x y) (apply-operation 'mul x y))
+(define (div x y) (apply-operation 'div x y))
