@@ -24,13 +24,16 @@
     
     (define (dispatch m)
       (cond [(eq? m 'push) push]
-            [(eq? m 'pop) pop]))
+            [(eq? m 'pop) pop]
+            [(eq? m 'content) stack]))
      dispatch))
 
 (define (push x stack)
   ((stack 'push) x))
 (define (pop stack)
   ((stack 'pop) stack))
+(define (content-stack stack)
+  (stack 'content))
 
 ; Queue implementation
 
@@ -49,13 +52,16 @@
     
     (define (dispatch m)
       (cond [(eq? m 'enqueue) enqueue]
-            [(eq? m 'dequeue) dequeue]))
+            [(eq? m 'dequeue) dequeue]
+            [(eq? m 'content) queue]))
      dispatch))
 
 (define (enqueue! queue x)
   ((queue 'enqueue) x))
 (define (dequeue! queue)
   ((queue 'dequeue)))
+(define (content-queue queue)
+  (queue 'content))
 
 ; Set implementation
 
@@ -79,5 +85,5 @@
 
 (define (adjoin! set x)
   ((set 'adjoin) x))
-(define (content set)
+(define (content-set set)
   (set 'content))
