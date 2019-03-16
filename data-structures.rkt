@@ -63,7 +63,7 @@
 (define (content-queue queue)
   (queue 'content))
 
-; Set implementation
+; Ordered Set implementation
 
 (define (make-set)
   (let ([content '()])
@@ -87,3 +87,34 @@
   ((set 'adjoin) x))
 (define (content-set set)
   (set 'content))
+
+; Map implementation
+
+(define (make-map)
+  (let ([content '()])
+
+    (define (lookup key)
+      (define (lookup key rest)
+        (cond
+          [(null? rest) #f]
+          [(equal? key (caar rest)) (cdar rest)]
+          [else (lookup key (cdr rest))]))
+      (lookup key content))
+    
+    (define (add key value)
+      (if (lookup key)
+          #f
+          (set! content (cons (cons key value) content))))
+
+    (define (dispatch m)
+      (cond [(eq? m 'add) add]
+            [(eq? m 'lookup) lookup]
+            [(eq? m 'content) content]))
+    dispatch))
+
+(define (add! m key value)
+  ((m 'add) key value))
+(define (lookup m key)
+  ((m 'lookup) key))
+(define (content-map m)
+  (m 'content))
