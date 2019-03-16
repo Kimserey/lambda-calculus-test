@@ -118,3 +118,32 @@
   ((m 'lookup) key))
 (define (content-map m)
   (m 'content))
+
+; Binary tree
+
+(define (make-btree)
+  (let ([content '()])
+
+    (define (insert x)
+      (define (insert-in tree)
+        (cond
+          [(null? tree) (list x 'none 'none)]
+          [(< x (car tree))
+           (if (eq? (cadr tree) 'none)
+               (list (car tree) (list x 'none 'none) (caddr tree))
+               (list (car tree) (insert-in (cadr tree)) (caddr tree)))]
+          [else
+           (if (eq? (caddr tree) 'none)
+               (list (car tree) (cadr tree) (list x 'none 'none))
+               (list (car tree) (cadr tree) (insert-in (caddr tree))))]))
+      (set! content (insert-in content)))
+   
+    (define (dispatch m)
+      (cond [(eq? m 'insert) insert]
+            [(eq? m 'content) content]))
+    dispatch))
+
+(define (insert! t value)
+  ((t 'insert) value))
+(define (content-btree t)
+  (t 'content))
