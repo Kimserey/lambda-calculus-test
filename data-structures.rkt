@@ -56,3 +56,28 @@
   ((queue 'enqueue) x))
 (define (dequeue! queue)
   ((queue 'dequeue)))
+
+; Set implementation
+
+(define (make-set)
+  (let ([content '()])
+
+    (define (append x)
+      (define (append xs x)
+        (if (null? xs)
+            (list x)
+            (cond
+              [(= x (car xs)) xs]
+              [(< x (car xs)) (cons x xs)]
+              [else (cons (car xs) (append (cdr xs) x))])))
+      (set! content (append content x)))
+
+    (define (dispatch m)
+      (cond [(eq? m 'append) append]
+            [(eq? m 'content) content]))
+    dispatch))
+
+(define (append! set x)
+  ((set 'append) x))
+(define (content set)
+  (set 'content))
