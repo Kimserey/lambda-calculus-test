@@ -1,4 +1,4 @@
-class MyStack:
+class Stack:
   """
     Stack implementation with:
     - Push
@@ -19,7 +19,7 @@ class MyStack:
     return val
 
 
-class MyQueue:
+class Queue:
   """
     Queue implementation with:
     - Enqueue
