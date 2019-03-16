@@ -38,18 +38,14 @@
   (let ([queue '()])
     
     (define (enqueue x)
-      (set! queue (cons x queue)))
-    
+      (set! queue (append queue x)))
+
     (define (dequeue)
-      (define (pop-last new-queue rest)
-        (cond
-          [(null? rest) #f]
-          [(null? (cdr rest))
-           (let ([last (car rest)])
-             (set! queue new-queue)
-             last)]
-          [else (pop-last (append new-queue (car rest)) (cdr rest))]))
-      (pop-last '() queue))
+      (if (pair? queue)
+          (let ([x (car queue)])
+            (set! queue (cdr queue))
+            x)
+          #f))
     
     (define (dispatch m)
       (cond [(eq? m 'enqueue) enqueue]
