@@ -137,13 +137,31 @@
                (list (car tree) (cadr tree) (list x 'none 'none))
                (list (car tree) (cadr tree) (insert-in (caddr tree))))]))
       (set! content (insert-in content)))
+
+    (define (contain x)
+      (define (exists-in tree)
+        (cond
+          [(null? tree) #f]
+          [(= x (car tree)) #t]
+          [(< x (car tree))
+           (if (eq? (cadr tree) 'none)
+               #f
+               (exists-in (cadr tree)))]
+          [else
+           (if (eq? (caddr tree) 'none)
+               #f
+               (exists-in (caddr tree)))]))
+      (exists-in content))
    
     (define (dispatch m)
       (cond [(eq? m 'insert) insert]
+            [(eq? m 'contain) contain]
             [(eq? m 'content) content]))
     dispatch))
 
 (define (insert! t value)
   ((t 'insert) value))
+(define (contain t value)
+  ((t 'contain) value))
 (define (content-btree t)
   (t 'content))
