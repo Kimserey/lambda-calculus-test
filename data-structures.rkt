@@ -62,22 +62,22 @@
 (define (make-set)
   (let ([content '()])
 
-    (define (append x)
-      (define (append xs x)
+    (define (adjoin x)
+      (define (adjoin xs x)
         (if (null? xs)
             (list x)
             (cond
               [(= x (car xs)) xs]
               [(< x (car xs)) (cons x xs)]
-              [else (cons (car xs) (append (cdr xs) x))])))
-      (set! content (append content x)))
+              [else (cons (car xs) (adjoin (cdr xs) x))])))
+      (set! content (adjoin content x)))
 
     (define (dispatch m)
-      (cond [(eq? m 'append) append]
+      (cond [(eq? m 'adjoin) adjoin]
             [(eq? m 'content) content]))
     dispatch))
 
-(define (append! set x)
-  ((set 'append) x))
+(define (adjoin! set x)
+  ((set 'adjoin) x))
 (define (content set)
   (set 'content))
