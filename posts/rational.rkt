@@ -24,6 +24,7 @@
              x)))
          
 (define op-table '())
+
 (define (get-op name tags)
   (define (get ops)
     (cond
@@ -34,7 +35,8 @@
        (caddar ops)]
       [else (get (cdr ops))]))
   (get op-table))
-(define (set-op! name tags operation)
+
+(define (install name tags operation)
   (set! op-table (cons (list name tags operation) op-table)))
 
 ; numbers
@@ -75,11 +77,11 @@
                x y)))
 
   ; populte op-table
-  (set-op! 'make 'num make)
-  (set-op! 'add '(num num) add)
-  (set-op! 'sub '(num num) sub)
-  (set-op! 'mul '(num num) mul)
-  (set-op! 'div '(num num) div)
+  (install 'make 'num make)
+  (install 'add '(num num) add)
+  (install 'sub '(num num) sub)
+  (install 'mul '(num num) mul)
+  (install 'div '(num num) div)
   'done)
 
 (define (make-num x) ((get-op 'make 'num) x))
@@ -135,11 +137,11 @@
     (mul r1 (make (denom r2) (numer r1))))
 
   ; populate op-table
-  (set-op! 'make 'rational make)
-  (set-op! 'add '(rational rational) add)
-  (set-op! 'sub '(rational rational) sub)
-  (set-op! 'mul '(rational rational) mul)
-  (set-op! 'div '(rational rational) div)
+  (install 'make 'rational make)
+  (install 'add '(rational rational) add)
+  (install 'sub '(rational rational) sub)
+  (install 'mul '(rational rational) mul)
+  (install 'div '(rational rational) div)
   'done)
 
 (define (make-rat n d) ((get-op 'make 'rational) n d))
@@ -158,3 +160,8 @@
 (define (sub x y) (apply-operation 'sub x y))
 (define (mul x y) (apply-operation 'mul x y))
 (define (div x y) (apply-operation 'div x y))
+
+; install
+
+(install-number-package)
+(install-rational-package)
