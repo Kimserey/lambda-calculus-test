@@ -23,9 +23,9 @@
       (error "Value provided isn't tagged:"
              x)))
          
-(define op-table '())
+(define operation-table '())
 
-(define (get-op name tags)
+(define (get-operation name tags)
   (define (get ops)
     (cond
       [(null? ops) #f]
@@ -34,10 +34,10 @@
         (equal? tags (cadar ops)))
        (caddar ops)]
       [else (get (cdr ops))]))
-  (get op-table))
+  (get operation-table))
 
-(define (install name tags operation)
-  (set! op-table (cons (list name tags operation) op-table)))
+(define (install-operation name tags operation)
+  (set! operation-table (cons (list name tags operation) operation-table)))
 
 ; numbers
 
@@ -77,14 +77,14 @@
                x y)))
 
   ; populte op-table
-  (install 'make 'num make)
-  (install 'add '(num num) add)
-  (install 'sub '(num num) sub)
-  (install 'mul '(num num) mul)
-  (install 'div '(num num) div)
+  (install-operation 'make 'num make)
+  (install-operation 'add '(num num) add)
+  (install-operation 'sub '(num num) sub)
+  (install-operation 'mul '(num num) mul)
+  (install-operation 'div '(num num) div)
   'done)
 
-(define (make-num x) ((get-op 'make 'num) x))
+(define (make-num x) ((get-operation 'make 'num) x))
 
 ; rationals
 
@@ -136,21 +136,47 @@
   (define (div r1 r2)
     (mul r1 (make (denom r2) (numer r1))))
 
-  ; populate op-table
-  (install 'make 'rational make)
-  (install 'add '(rational rational) add)
-  (install 'sub '(rational rational) sub)
-  (install 'mul '(rational rational) mul)
-  (install 'div '(rational rational) div)
+  ; populate operation-table
+  (install-operation 'make 'rational make)
+  (install-operation 'add '(rational rational) add)
+  (install-operation 'sub '(rational rational) sub)
+  (install-operation 'mul '(rational rational) mul)
+  (install-operation 'div '(rational rational) div)
   'done)
 
-(define (make-rat n d) ((get-op 'make 'rational) n d))
+(define (make-rat n d) ((get-operation 'make 'rational) n d))
+
+; coercion
+
+(define coercion-table '())
+
+(define (get-coercion t1 t2)
+  (define (get ops)
+    (cond
+      [(null? ops) #f]
+      [(and
+        (eq? t1 (caar ops))
+        (eq? t2 (cadar ops)))
+       (caddar ops)]
+      [else (get (cdr ops))]))
+  (get coercion-table))
+
+(define (install-coercion t1 t2 operation)
+  (set! coercion-table (cons (list t1 t2 operation) coercion-table)))
+
+(define (install-coercion-package)
+  (define (number->rational n)
+    (make-rat n 1))
+  
+  ; populate coercion-table
+  (install-coercion 'number 'rational number->rational)
+  'done)
 
 ; generic operations
 
 (define (apply-operation name . args)
   (let* ([tags (map get-tag args)]
-         [op (get-op name tags)])
+         [op (get-operation name tags)])
     (if op
         (apply op args)
         (error "No operation found for:"
@@ -165,3 +191,5 @@
 
 (install-number-package)
 (install-rational-package)
+
+
