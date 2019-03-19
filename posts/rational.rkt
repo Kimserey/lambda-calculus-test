@@ -166,21 +166,33 @@
 
 (define (install-coercion-package)
   (define (number->rational n)
-    (make-rat n 1))
+    (make-rat (value n) 1))
   
   ; populate coercion-table
-  (install-coercion 'number 'rational number->rational)
+  (install-coercion 'num 'rational number->rational)
   'done)
 
 ; generic operations
 
-(define (apply-operation name . args)
+(define (apply-operation name . args)    
   (let* ([tags (map get-tag args)]
-         [op (get-operation name tags)])
-    (if op
-        (apply op args)
-        (error "No operation found for:"
-               name args tags))))
+         [t1 (car tags)]
+         [t2 (cadr tags)])
+    (if (eq? t1 t2)
+        (let ([op (get-operation name tags)])
+          (if op
+              (apply op args)
+              (error "No operation found for:"
+                     name args tags)))
+
+        (let ([t1->t2 (get-coercion t1 t2)]
+              [t2->t1 (get-coercion t2 t1)])
+          (cond
+            [t1->t2 (apply-operation name (t1->t2 (car args)) (cadr args))]
+            [t2->t1 (apply-operation name (car args) (t2->t1 (cadr args)))]
+            [else (error "No operation found for:"
+                         name args tags)])))))
+              
 
 (define (add x y) (apply-operation 'add x y))
 (define (sub x y) (apply-operation 'sub x y))
@@ -191,5 +203,6 @@
 
 (install-number-package)
 (install-rational-package)
+(install-coercion-package)
 
 
