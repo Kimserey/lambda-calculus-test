@@ -76,7 +76,7 @@
         (error "Values provided aren't numbers of type 'num:"
                x y)))
 
-  ; populte op-table
+  ; populate op-table
   (install-operation 'make 'num make)
   (install-operation 'add '(num num) add)
   (install-operation 'sub '(num num) sub)
@@ -142,6 +142,7 @@
   (install-operation 'sub '(rational rational) sub)
   (install-operation 'mul '(rational rational) mul)
   (install-operation 'div '(rational rational) div)
+  
   'done)
 
 (define (make-rat n d) ((get-operation 'make 'rational) n d))
