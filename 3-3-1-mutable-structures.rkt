@@ -15,6 +15,7 @@
 
 (define (car z) (z 'car))
 (define (cdr z) (z 'cdr))
+(define (caar z) ((z 'car) 'car))
 
 (define (set-car! z v)
   ((z 'set-car!) v)
@@ -76,3 +77,31 @@
           (print (cdr items))
           'end)))
   (print (front-ptr queue)))
+
+; Table with assignment
+
+(define (assoc key records)
+  (cond
+    [(null? records) #f]
+    [(equal? key (caar records)) (car records)]
+    [else (assoc key (cdr records))]))
+
+(define (lookup table key)
+  (let ([record (assoc key (cdr table))])
+    (if record
+        (cdr record)
+        #f)))
+
+(define (insert! table key value)
+  (let ([record (assoc key (cdr table))])
+    (if record
+        (set-cdr! record value)
+        (set-cdr!
+         table
+         (cons (cons key value)
+               (cdr table))))))
+
+(define (make-table)
+  (cons '*table* '()))
+
+(define t (make-table))
