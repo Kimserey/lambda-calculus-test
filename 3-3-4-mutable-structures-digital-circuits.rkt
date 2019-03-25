@@ -1,5 +1,30 @@
 #lang racket
 
+; Prelude
+
+(define (cons x y)
+  (define (set-x! v) (set! x v))
+  (define (set-y! v) (set! y v))
+  (define (dispatch m)
+    (cond [(eq? m 'car) x]
+          [(eq? m 'cdr) y]
+          [(eq? m 'set-car!) set-x!]
+          [(eq? m 'set-cdr!) set-y!]
+          [else (error "Undefined operation: CONS" m)]))
+  dispatch)
+
+(define (car z) (z 'car))
+(define (cdr z) (z 'cdr))
+(define (caar z) ((z 'car) 'car))
+
+(define (set-car! z v)
+  ((z 'set-car!) v)
+  z)
+  
+(define (set-cdr! z v)
+  ((z 'set-cdr!) v)
+  z)
+
 ; Logical Gates
 
 (define (half-adder a b s c)
@@ -95,3 +120,59 @@
   ((wire 'set-signal!) new-value))
 (define (accept-action-procedure! wire proc)
   ((wire 'accept-action-procedure!) proc))
+
+; Agenda
+
+(define (after-delay delay action)
+  (add-to-agenda!
+   (+ delay (current-time the-agenda))
+   action
+   the-agenda))
+
+(define (propagate)
+  (if (empty-agenda? the-agenda)
+      'done
+      (let ([first-item (first-agenda-item the-agenda)])
+        (first-item)
+        (remove-first-agenda-item! the-agenda)
+        (propagate))))
+
+(define (make-time-segment time queue)
+  (cons time queue))
+(define (segment-time s) (car s))
+(define (segment-queue s) (cdr s))
+
+(define (make-agenda) (cons 0 '()))
+(define (current-time agenda) (car agenda))
+(define (set-current-time! agenda time)
+  (set-car! agenda time))
+(define (segments agenda) (cdr agenda))
+(define (set-segments! agenda segments)
+  (set-cdr! agenda segments))
+(define (first-segment agenda)
+  (car (segments agenda)))
+(define (res-segments agenda)
+  (cdr (segments agenda)))
+
+; Probes
+
+(define (probe name wire)
+  (add-action!
+   wire
+   (λ ()
+     (newline)
+     (display name)
+     (display " ")
+     (display (current-time the-agenda))
+     (display " New-value = ")
+     (display (get-signal wire)))))
+
+(define the-agenda (make-agenda))
+(define inverter-delay 2)
+(define and-gate-delay 3)
+(define or-gate-delay 5)
+
+(define input-1 (make-wire))
+(define input-2 (make-wire))
+(define sum (make-wire))
+(define carry (make-wire))
