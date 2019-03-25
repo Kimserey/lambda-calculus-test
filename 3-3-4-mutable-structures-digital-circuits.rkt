@@ -32,7 +32,33 @@
     [(= s 1) 0]
     [else (error "Invalid signal" s)]))
 
+(define (and-gate a1 a2 ouput)
+  (define (and-action-procedure)
+    (let ([new-value (logical-and
+                      (get-signal a1)
+                      (get-signal a2))])
+      (after-delay and-gate-delay (λ () (set-signal! output new-value)))))
+  (add-action! input and-action-procedure)
+  'ok)
 
+(define (logical-and a1 a2)
+  (cond
+    [(and (= a1 1) (= a2 1)) 1]
+    [else 0]))
+
+(define (or-gate a1 a2 output)
+  (define (or-action-procedure)
+    (let ([new-value (logical-or
+                      (get-signal a1)
+                      (get-signal a2))])
+      (after-delay or-gate-delay (λ () (set-signal! output new-value)))))
+  (add-action! input or-action-procedure)
+  'ok)
+
+(define (logical-or a1 a2)
+  (cond
+    [(or (= a1 1) (= a2 1)) 1]
+    [else 0]))
 
 (define (make-wire)
   #f)
