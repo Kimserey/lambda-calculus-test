@@ -206,10 +206,12 @@
   (define (belongs-before? segments)
     (or (null? segments)
         (< time (segment-time (car segments)))))
+  
   (define (make-new-time-segment time action)
     (let ([q (make-queue)])
       (insert-queue! q action)
       (make-time-segment time q)))
+
   (define (add-to-segments! segments)
     (if (= (segment-time (car segments)) time)
         (insert-queue! (segment-queue (car segments)) action)
@@ -222,6 +224,7 @@
                       action)
                      (cdr segments)))
               (add-to-segments! rest)))))
+  
   (let ([segments (segments agenda)])
     (if (belongs-before? segments)
         (set-segments!
