@@ -229,9 +229,8 @@
          (cons (make-new-time-segment
                 time
                 action)
-                segments)
-         (add-to-segments! segments))
-        #f)))
+                segments))
+        (add-to-segments! segments))))
 
 (define (remove-first-agenda-item! agenda)
   (let ([q (segment-queue (first-segment agenda))])
@@ -257,12 +256,12 @@
   (add-action!
    wire
    (λ ()
-     (newline)
      (display name)
      (display " ")
      (display (current-time the-agenda))
      (display " New-value = ")
-     (display (get-signal wire)))))
+     (display (get-signal wire))
+     (newline))))
 
 (define the-agenda (make-agenda))
 (define inverter-delay 2)
@@ -274,3 +273,7 @@
 (define sum (make-wire))
 (define carry (make-wire))
 
+(probe 'sum sum)
+(probe 'carry carry)
+
+(half-adder input-1 input-2 sum carry)
