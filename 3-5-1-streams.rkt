@@ -57,6 +57,16 @@
   (define (force x) (x))
   (force (cdr stream)))
 
+(define (memo-proc proc)
+  (let ([already-run? false]
+        [result false])
+    (λ ()
+      (if (not already-run?)
+          (begin (set! result (proc))
+                 (set! already-run? true)
+                 result)
+          result))))
+
 (define (stream-null? s)
   (eq? s the-empty-stream))
 
@@ -64,7 +74,7 @@
 (define (stream-enumerate-interval low high)
   (if (> low high)
       the-empty-stream
-      (cons low (λ () (stream-enumerate-interval (+ 1 low) high)))))
+      (cons low (memo-proc (λ () (stream-enumerate-interval (+ 1 low) high))))))
 
 (define (stream-ref s n)
   (if (= n 0)
@@ -76,7 +86,7 @@
       the-empty-stream
       (cons
        (proc (stream-car s))
-       (λ () (stream-map proc (stream-cdr s))))))
+       (memo-proc (λ () (stream-map proc (stream-cdr s)))))))
 
 (define (stream-for-each proc s)
   (if (stream-null? s)
@@ -93,5 +103,5 @@
   (cond [(stream-null? stream) the-empty-stream]
         [(pred (stream-car stream))
          (cons (stream-car stream)
-               (λ () (stream-filter pred (stream-cdr stream))))]
+               (memo-proc (λ () (stream-filter pred (stream-cdr stream)))))]
         [else (stream-filter pred (stream-cdr stream))]))
