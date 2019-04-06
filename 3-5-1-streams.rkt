@@ -85,3 +85,13 @@
         (proc (stream-car s))
         (stream-for-each proc
                          (stream-cdr s)))))
+
+(define (display-stream s)
+  (stream-for-each displayln s))
+
+(define (stream-filter pred stream)
+  (cond [(stream-null? stream) the-empty-stream]
+        [(pred (stream-car stream))
+         (cons (stream-car stream)
+               (λ () (stream-filter pred (stream-cdr stream))))]
+        [else (stream-filter pred (stream-cdr stream))]))
