@@ -62,9 +62,13 @@
         [result false])
     (λ ()
       (if (not already-run?)
-          (begin (set! result (proc))
-                 (set! already-run? true)
-                 result)
+          (begin
+            (set! result (proc))
+            ;(display "Memo: Execute ")
+            ;(display result)
+            ;(newline)
+            (set! already-run? true)
+            result)
           result))))
 
 (define (stream-null? s)
