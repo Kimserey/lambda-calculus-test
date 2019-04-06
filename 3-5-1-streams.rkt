@@ -22,6 +22,8 @@
   (iter a 0))
 
 ; Sequence operations calculation
+; Even though composable, problematic due to the whole sequence
+; needing to be computed prior the next operation start.
 
 (define (filter predicate sequence)
   (cond [(null? sequence) '()]
@@ -43,3 +45,43 @@
 
 (define (sum-primes-two a b)
   (accumulate + 0 (filter prime? (enumerate-interval a b))))
+
+; Streams
+
+(define the-empty-stream 'empty-stream)
+
+(define (stream-car stream)
+  (car stream))
+
+(define (stream-cdr stream)
+  (define (force x) (x))
+  (force (cdr stream)))
+
+(define (stream-null? s)
+  (eq? s the-empty-stream))
+
+; Generator will delay the evaluation of cdr
+(define (stream-enumerate-interval low high)
+  (if (> low high)
+      the-empty-stream
+      (cons low (λ () (stream-enumerate-interval (+ 1 low) high)))))
+
+(define (stream-ref s n)
+  (if (= n 0)
+      (stream-car s)
+      (stream-ref (stream-cdr s) (- n 1))))
+
+(define (stream-map proc s)
+  (if (stream-null? s)
+      the-empty-stream
+      (cons
+       (proc (stream-car s))
+       (λ () (stream-map proc (stream-cdr s))))))
+
+(define (stream-for-each proc s)
+  (if (stream-null? s)
+      'done
+      (begin
+        (proc (stream-car s))
+        (stream-for-each proc
+                         (stream-cdr s)))))
