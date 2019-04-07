@@ -119,3 +119,26 @@
 
 (define no-sevens
   (stream-filter (λ (x) (not (divides? 7 x))) integers))
+
+(define (fibgen a b)
+  (cons a (λ () (fibgen b (+ a b)))))
+
+(define fibs (fibgen 0 1))
+
+; Sieve of Eratosthenes
+; Recursively curates the stream by removing divisibles
+; of each primes.
+; At each curation, the prime is cons'ed with the rest,
+; resulting stream not longer contains divisable value of the prime returned.
+;
+; Stream is infinite, and the process is also infinite due to the sieve containing the sieve.
+(define (sieve stream)
+  (cons
+   (stream-car stream)
+   (λ ()
+     (sieve
+      (stream-filter
+       (λ (x) (not (divides? (stream-car stream) x)))
+       (stream-cdr stream))))))
+
+(define primes (sieve (integers-starting-from 2)))
