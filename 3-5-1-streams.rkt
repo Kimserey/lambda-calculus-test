@@ -183,15 +183,16 @@
     (cons 1.0 (λ () (stream-map (λ (guess) (sqrt-improve guess x)) guesses))))
   guesses)
 
+; Stream-map with minus is used to alternate between positive and negative
 (define (pi-summands n)
   (cons
    (/ 1.0 n)
    (λ () (stream-map - (pi-summands (+ n 2))))))
 
 (define pi-stream
-  (scale-stream
-   (partial-sums (pi-summands 1)) 4))
+  (scale-stream (partial-sums (pi-summands 1)) 4))
 
+; Acceleration
 (define (euler-transform s)
   (let ([s0 (stream-ref s 0)]
         [s1 (stream-ref s 1)]
@@ -199,5 +200,29 @@
     (cons (- s2 (/ (* (- s2 s1) (- s2 s1)) (+ s0 (* -2 s1) s2)))
           (λ () (euler-transform (stream-cdr s))))))
 
+; Recursively transform the transform
 (define (make-tableau transform s)
   (cons s (λ () (make-tableau transform (transform s)))))
+
+; Select the first element of each sequence
+(define (accelerated-sequence transform s)
+  (stream-map stream-car (make-tableau transform s)))
+
+; Infinite stream of pairs
+(define (interleave s1 s2)
+  (if (stream-null? s1)
+      s2
+      (cons (stream-car s1) (λ () (interleave s2 (stream-cdr s1))))))
+
+(define (pairs s t)
+  (cons
+   (list (stream-car s) (stream-car t))
+   (λ () (interleave
+          (stream-map
+           (λ (x) (list (stream-car s) x))
+           (stream-cdr t))
+          (pairs (stream-cdr s) (stream-cdr t))))))
+
+(define int-pairs (pairs integers integers))
+; Filter pairs which sum is prime
+; (stream-ref (stream-filter (λ (pair) (prime? (+ (car pair) (cadr pair)))) int-pairs) 5) 
