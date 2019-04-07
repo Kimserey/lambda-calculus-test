@@ -161,6 +161,7 @@
   (stream-map (λ (x) (* x factor)) stream))
 
 ; Recursive definition of primes and prime?
+; n is not a prime if there is a prime generated such as 'sqrt(n) < P < n'
 (define primes
   (cons 2 (λ () (stream-filter prime? (integers-starting-from 3)))))
 
