@@ -71,8 +71,11 @@
             result)
           result))))
 
-(define (stream-null? s)
-  (eq? s the-empty-stream))
+(define (stream-null? . streams)
+  (if (null? streams)
+      #t
+      (and (eq? (car streams) the-empty-stream)
+           (apply stream-null? (cdr streams)))))
 
 ; Generator will delay the evaluation of cdr
 (define (stream-enumerate-interval low high)
@@ -85,12 +88,12 @@
       (stream-car s)
       (stream-ref (stream-cdr s) (- n 1))))
 
-(define (stream-map proc s)
-  (if (stream-null? s)
+(define (stream-map proc . args)
+  (if (apply stream-null? args)
       the-empty-stream
       (cons
-       (proc (stream-car s))
-       (memo-proc (λ () (stream-map proc (stream-cdr s)))))))
+       (apply proc (map stream-car args))
+       (λ () (apply stream-map proc (map stream-cdr args))))))
 
 (define (stream-for-each proc s)
   (if (stream-null? s)
@@ -115,15 +118,15 @@
 (define (integers-starting-from n)
   (cons n (λ () (integers-starting-from (+ n 1)))))
 
-(define integers (integers-starting-from 1))
+; (define integers (integers-starting-from 1))
 
-(define no-sevens
-  (stream-filter (λ (x) (not (divides? 7 x))) integers))
+; (define no-sevens
+;  (stream-filter (λ (x) (not (divides? 7 x))) integers))
 
 (define (fibgen a b)
   (cons a (λ () (fibgen b (+ a b)))))
 
-(define fibs (fibgen 0 1))
+; (define fibs (fibgen 0 1))
 
 ; Sieve of Eratosthenes
 ; Recursively curates the stream by removing divisibles
@@ -142,3 +145,14 @@
        (stream-cdr stream))))))
 
 (define primes (sieve (integers-starting-from 2)))
+
+(define (add-streams . args)
+  (apply stream-map + args))
+
+(define ones (cons 1 (λ () ones)))
+
+(define integers
+  (cons 1 (λ () (add-streams ones integers))))
+
+(define fibs
+  (cons 0 (λ () (cons 1 (λ () (add-streams (stream-cdr fibs) fibs))))))
