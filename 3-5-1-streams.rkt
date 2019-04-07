@@ -188,6 +188,16 @@
    (/ 1.0 n)
    (λ () (stream-map - (pi-summands (+ n 2))))))
 
-;(define pi-stream
-;  (scale-stream
-;   (partial-sums (pi-summands 1)) 4))
+(define pi-stream
+  (scale-stream
+   (partial-sums (pi-summands 1)) 4))
+
+(define (euler-transform s)
+  (let ([s0 (stream-ref s 0)]
+        [s1 (stream-ref s 1)]
+        [s2 (stream-ref s 2)])
+    (cons (- s2 (/ (* (- s2 s1) (- s2 s1)) (+ s0 (* -2 s1) s2)))
+          (λ () (euler-transform (stream-cdr s))))))
+
+(define (make-tableau transform s)
+  (cons s (λ () (make-tableau transform (transform s)))))
