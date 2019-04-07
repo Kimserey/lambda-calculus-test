@@ -2,9 +2,9 @@
 
 ; Iterative calculation
 
+(define (divides? a b) (= (remainder b a) 0)) 
+
 (define (smallest-divisor n)
-  (define (divides? a b)
-    (= (remainder b a) 0)) 
   (define (find-divisor n test-divisor)
     (cond [(> (* test-divisor test-divisor) n) n]
           [(divides? test-divisor n) test-divisor]
@@ -109,3 +109,13 @@
          (cons (stream-car stream)
                (memo-proc (λ () (stream-filter pred (stream-cdr stream)))))]
         [else (stream-filter pred (stream-cdr stream))]))
+
+; Infinite stream
+
+(define (integers-starting-from n)
+  (cons n (λ () (integers-starting-from (+ n 1)))))
+
+(define integers (integers-starting-from 1))
+
+(define no-sevens
+  (stream-filter (λ (x) (not (divides? x 7))) integers))
