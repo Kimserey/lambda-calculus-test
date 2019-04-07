@@ -64,9 +64,6 @@
       (if (not already-run?)
           (begin
             (set! result (proc))
-            ;(display "Memo: Execute ")
-            ;(display result)
-            ;(newline)
             (set! already-run? true)
             result)
           result))))
@@ -160,6 +157,10 @@
 (define (scale-stream stream factor)
   (stream-map (λ (x) (* x factor)) stream))
 
+(define (partial-sums s)
+  (let ([value (stream-car s)])
+    (cons value (λ () (stream-map (λ (x) (+ x value)) (partial-sums (stream-cdr s)))))))
+
 ; Recursive definition of primes and prime?
 ; n is not a prime if there is a prime generated such as 'sqrt(n) < P < n'
 (define primes
@@ -171,3 +172,22 @@
           [(divides? (stream-car ps) n) false]
           [else (iter (stream-cdr ps))]))
   (iter primes))
+
+; Stream Paradigm
+
+(define (sqrt-improve guess x)
+  (/ (+ guess (/ x guess)) 2))
+
+(define (sqrt-stream x)
+  (define guesses
+    (cons 1.0 (λ () (stream-map (λ (guess) (sqrt-improve guess x)) guesses))))
+  guesses)
+
+(define (pi-summands n)
+  (cons
+   (/ 1.0 n)
+   (λ () (stream-map - (pi-summands (+ n 2))))))
+
+;(define pi-stream
+;  (scale-stream
+;   (partial-sums (pi-summands 1)) 4))
