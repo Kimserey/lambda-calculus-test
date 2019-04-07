@@ -118,4 +118,4 @@
 (define integers (integers-starting-from 1))
 
 (define no-sevens
-  (stream-filter (λ (x) (not (divides? x 7))) integers))
+  (stream-filter (λ (x) (not (divides? 7 x))) integers))
