@@ -11,15 +11,15 @@
           [else (find-divisor n (+ test-divisor 1))]))
   (find-divisor n 2))
 
-(define (prime? n)
-  (= n (smallest-divisor n)))
+; (define (prime? n)
+;  (= n (smallest-divisor n)))
 
-(define (sum-primes a b)
-  (define (iter count acc)
-    (cond [(> count b) acc]
-          [(prime? count) (iter (+ count 1) (+ count acc))]
-          [else (iter (+ count 1) acc)]))
-  (iter a 0))
+; (define (sum-primes a b)
+;  (define (iter count acc)
+;    (cond [(> count b) acc]
+;          [(prime? count) (iter (+ count 1) (+ count acc))]
+;          [else (iter (+ count 1) acc)]))
+;  (iter a 0))
 
 ; Sequence operations calculation
 ; Even though composable, problematic due to the whole sequence
@@ -144,7 +144,7 @@
        (λ (x) (not (divides? (stream-car stream) x)))
        (stream-cdr stream))))))
 
-(define primes (sieve (integers-starting-from 2)))
+; (define primes (sieve (integers-starting-from 2)))
 
 (define (add-streams . args)
   (apply stream-map + args))
@@ -156,3 +156,17 @@
 
 (define fibs
   (cons 0 (λ () (cons 1 (λ () (add-streams (stream-cdr fibs) fibs))))))
+
+(define (scale-stream stream factor)
+  (stream-map (λ (x) (* x factor)) stream))
+
+; Recursive definition of primes and prime?
+(define primes
+  (cons 2 (λ () (stream-filter prime? (integers-starting-from 3)))))
+
+(define (prime? n)
+  (define (iter ps)
+    (cond [(> (* (stream-car ps) (stream-car ps)) n) true]
+          [(divides? (stream-car ps) n) false]
+          [else (iter (stream-cdr ps))]))
+  (iter primes))
