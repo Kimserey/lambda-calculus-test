@@ -19,8 +19,8 @@
       'empty-stream
       (force (cdr xs))))
 
-(define (filter predicate xs)
+(define (take n xs)
   (cond [(null? xs) '()]
-        [(predicate (car xs))
-         (cons (car xs) (filter predicate (cdr xs)))]
-        [else (filter predicate (cdr xs))]))
+        [(= n 0)
+         (cons (car xs) (take (- n 1) (cdr xs)))]
+        [else (take (- n 1) (cdr xs))]))
