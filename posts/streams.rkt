@@ -20,7 +20,27 @@
       (force (cdr xs))))
 
 (define (take n xs)
-  (cond [(null? xs) '()]
-        [(= n 0)
-         (cons (car xs) (take (- n 1) (cdr xs)))]
-        [else (take (- n 1) (cdr xs))]))
+  (cond [(= n 0) '()]
+        [else (cons (car xs) (take (- n 1) (cdr xs)))]))
+
+(define (take-stream n xs)
+  (cond [(= n 0) 'empty-stream]
+        [else (cons (stream-car xs)
+                    (λ () (take-stream (- n 1) (stream-cdr xs))))]))
+
+(define (for-each-stream proc xs)
+  (if (stream-null? xs)
+      'done
+      (begin
+        (proc (stream-car xs))
+        (for-each-stream proc (stream-cdr xs)))))
+
+
+(define (integers-starting-from n)
+  (cons n (λ () (integers-starting-from (+ n 1)))))
+
+(define (fib-stream a b)
+  (cons a (λ () (fib-stream b (+ a b)))))
+
+(define fibonacci
+  (fib-stream 0 1))
