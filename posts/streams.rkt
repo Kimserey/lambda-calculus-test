@@ -19,7 +19,7 @@
       'empty-stream
       (force (cdr xs))))
 
-(define (take n xs)
+(define (take n xs )
   (cond [(= n 0) '()]
         [else (cons (car xs) (take (- n 1) (cdr xs)))]))
 
@@ -42,5 +42,10 @@
 (define (fib-stream a b)
   (cons a (λ () (fib-stream b (+ a b)))))
 
-(define fibonacci
-  (fib-stream 0 1))
+(define fibonacci (fib-stream 0 1))
+
+(define (stream-ref n xs)
+  (cond
+    [(stream-null? xs) 'empty-stream]
+    [(= n 0) (car xs)]
+    [else (stream-ref (- n 1) (stream-cdr xs))]))
