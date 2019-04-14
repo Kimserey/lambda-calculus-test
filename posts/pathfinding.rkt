@@ -68,11 +68,10 @@
                             (cons (link-from link) (node-path from))))
        (adjacents-excluded-from closed from links)))
 
-; 1. expand start to find adjacent not part of closed nodes
-; 2. add or replace with in open stack replace existing nodes distance with new distance if smaller
-; 3. move to the lowest node
-; 4. if lowest node is destination exit
-; Each value
+; 1. Expands node by getting all adjacent nodes not included in closed nodes,
+; 2. Adjoins adjacent nodes with open nodes, replacing with shortest paths,
+; 3. Take the shortest path in open nodes and recurse on it,
+; 4. Stop if shortest path in open node is the destination.
 (define (dijkstra start stop links)
   (define (destination? node)
     (eq? (node-letter node) stop))
