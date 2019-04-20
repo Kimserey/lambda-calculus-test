@@ -167,3 +167,30 @@
 
 (define (make-if predicate consequent alternative)
   (list 'if predicate consequent alternative))
+
+; Begin
+(define (begin? exp)
+  (tagged-list? exp 'begin))
+
+(define (begin-actions exp) (cdr exp))
+
+(define (last-exp? seq) (null? (cdr seq)))
+
+(define (first-exp seq) (car seq))
+
+(define (rest-exps seq) (cdr seq))
+
+(define (sequence->exp seq)
+  (cond [(null? seq) seq]
+        [(last-exp? seq) (first-exp seq)]
+        [else (make-begin seq)]))
+
+(define (make-begin seq) (cons 'begin seq))
+
+; Procedure application
+(define (application? exp) (pair? exp))
+(define (operator exp) (car exp))
+(define (operands exp) (cdr exp))
+(define (no-operands? ops) (null? ops))
+(define (first-operand ops) (car ops))
+(define (rest-operands ops) (cdr ops))
