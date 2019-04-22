@@ -30,6 +30,8 @@
 ; Eval and Apply
 ; **
 
+(define apply-in-underlying-scheme apply)
+
 (define (eval exp env)
   (cond [(self-evaluating? exp)
          exp]
@@ -55,14 +57,14 @@
         [(cond? exp)
          (eval (cond->if exp) env)]
         [(application? exp)
-         (apply (eval (operator exp) env)
+         (apply-local (eval (operator exp) env)
                 (list-of-values
                  (operands exp)
                  env))]
         [else
          (error "Unknown expression type: EVAL" exp)]))
 
-(define (apply procedure arguments)
+(define (apply-local procedure arguments)
   (cond [(primitive-procedure? procedure)
          (apply-primitive-procedure
           procedure
@@ -368,8 +370,6 @@
     (define-variable! 'false false initial-env)
     initial-env))
 
-(define the-global-envrionment (setup-environment))
-
 (define (primitive-procedure? proc)
   (tagged-list? proc 'primitive))
 
@@ -387,7 +387,7 @@
         (list '* *)))
 
 (define (primitive-procedure-names)
-  (map car (primitive-procedures)))
+  (map car primitive-procedures))
 
 (define (primitive-procedure-objects)
   (map (lambda (proc)
@@ -398,3 +398,38 @@
   (apply-in-underlying-scheme
    (primitive-implementation proc) args))
 
+(define the-global-envrionment (setup-environment))
+
+(define input-prompt ";;; M-Eval input:")
+
+(define output-prompt ";;; M-Eval value:")
+
+(define (driver-loop)
+  (prompt-for-input input-prompt)
+  (let ([input (read)])
+    (let ([output (eval input the-global-environment)])
+      (announce-output output-prompt)
+      (user-print output)))
+  (driver-loop))
+
+(define (prompt-for-input string)
+  (newline)
+  (newline)
+  (display string)
+  (newline))
+
+(define (announce-output string)
+  (newline)
+  (display string)
+  (newline))
+
+(define (user-print object)
+  (if (compound-procedure? object)
+      (display
+       (list 'compound-procedure
+             (procedure-parameters object)
+             (procedure-body object)
+             '<procedure-env>))
+      (display object)))
+
+(define the-global-environment (setup-environment))
