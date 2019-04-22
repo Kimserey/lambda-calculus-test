@@ -1,12 +1,38 @@
 #lang racket
 
 ; **
+; cons'
+; **
+
+(define (cons x y)
+  (define (set-x! v) (set! x v))
+  (define (set-y! v) (set! y v))
+  (define (dispatch m)
+    (cond [(eq? m 'car) x]
+          [(eq? m 'cdr) y]
+          [(eq? m 'set-car!) set-x!]
+          [(eq? m 'set-cdr!) set-y!]
+          [else (error "Undefined operation: CONS" m)]))
+  dispatch)
+
+(define (car z) (z 'car))
+(define (cdr z) (z 'cdr))
+(define (caar z) ((z 'car) 'car))
+
+(define (set-car! z v)
+  ((z 'set-car!) v)
+  z)
+  
+(define (set-cdr! z v)
+  ((z 'set-cdr!) v)
+  z)
+; **
 ; Eval and Apply
 ; **
 
 (define (eval exp env)
   (cond [(self-evaluating? exp)
-         ex]
+         exp]
         [(variable? exp)
          (lookup-variable-value exp env)]
         [(quoted? exp)
@@ -20,7 +46,7 @@
         [(lambda? exp)
          (make-procedure
           (lambda-parameters exp)
-          (lambda-body ex)
+          (lambda-body exp)
           env)]
         [(begin? exp)
          (eval-sequence
@@ -67,7 +93,7 @@
 ; Sequences
 ; Evaluation of compound sequence returns the last expression result
 ; from the list of expressions.
-(define (eval-sequence exprs env)
+(define (eval-sequence exps env)
   (cond [(last-exp? exps)
          (eval (first-exp exps) env)]
         [else
@@ -251,13 +277,17 @@
 
 (define (procedure-environment p) (cadddr p))
 
+; **
 ; Environment
+; **
+; Enclosing environment is the environment minus the current frame.
 (define (enclosing-environment env) (cdr env))
 
 (define (first-frame env) (car env))
 
 (define the-empty-environment '())
 
+; Frames in the environment are composed of a tuple of list of variables and list of values.
 (define (make-frame variables values)
   (cons variables values))
 
@@ -265,10 +295,14 @@
 
 (define (frame-values frame) (cdr frame))
 
+; Adding a new binding to the frame is done by
+; adding a new variable in the frame-variables
+; and a new value in the frame-values.
 (define (add-binding-to-frame! var val frame)
   (set-car! frame (cons var (car frame)))
   (set-cdr! frame (cons val (cdr frame))))
 
+; Extending environment is create a new frame with initial vars/vals on top of a base environment.
 (define (extend-environment vars vals base-env)
   (if (= (length vars) (length vals))
       (cons (make-frame vars vals) base-env)
@@ -280,6 +314,7 @@
                  vars
                  vals))))
 
+; Lookup is executed by looking for a variable by recursively looking at each frame of the environment.
 (define (lookup-variable-value var env)
   (define (env-loop env)
     (define (scan vars vals)
@@ -293,6 +328,8 @@
                 (frame-values frame)))))
   (env-loop env))
 
+; Setting a variable is done by recursively looking at each frame of the environment
+; and setting the variable if found.
 (define (set-variable-value! var val env)
   (define (env-loop env)
     (define (scan vars vals)
@@ -306,6 +343,9 @@
                 (frame-values frame)))))
   (env-loop env))
 
+; Define will only search within the first frame of
+; the environment (current frame where the application is executed)
+; for an existing variable or creating a new one if it does not exists.
 (define (define-variable! var val env)
   (let ([frame (first-frame env)])
     (define (scan vars vals)
@@ -314,3 +354,47 @@
             [else (scan (cdr vars) (cdr vals))]))
     (scan (frame-variables frame)
           (frame-values frame))))
+
+; **
+; Run
+; **
+
+(define (setup-environment)
+  (let ([initial-env (extend-environment
+                      (primitive-procedure-names)
+                      (primitive-procedure-objects)
+                      the-empty-environment)])
+    (define-variable! 'true true initial-env)
+    (define-variable! 'false false initial-env)
+    initial-env))
+
+(define the-global-envrionment (setup-environment))
+
+(define (primitive-procedure? proc)
+  (tagged-list? proc 'primitive))
+
+(define (primitive-implementation proc)
+  (cadr proc))
+
+(define primitive-procedures
+  (list (list 'car car)
+        (list 'cdr cdr)
+        (list 'cons cons)
+        (list 'null? null?)
+        (list '+ +)
+        (list '- -)
+        (list '/ /)
+        (list '* *)))
+
+(define (primitive-procedure-names)
+  (map car (primitive-procedures)))
+
+(define (primitive-procedure-objects)
+  (map (lambda (proc)
+         (list 'primitive (cadr proc)))
+       primitive-procedures))
+
+(define (apply-primitive-procedure proc args)
+  (apply-in-underlying-scheme
+   (primitive-implementation proc) args))
+
