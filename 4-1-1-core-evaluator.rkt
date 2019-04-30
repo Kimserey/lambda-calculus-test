@@ -265,18 +265,18 @@
 
 ; Frames in the environment are composed of a tuple of list of variables and list of values.
 (define (make-frame variables values)
-  (cons variables values))
+  (mcons variables values))
 
-(define (frame-variables frame) (car frame))
+(define (frame-variables frame) (mcar frame))
 
-(define (frame-values frame) (cdr frame))
+(define (frame-values frame) (mcdr frame))
 
 ; Adding a new binding to the frame is done by
 ; adding a new variable in the frame-variables
 ; and a new value in the frame-values.
 (define (add-binding-to-frame! var val frame)
-  (set-mcar! frame (cons var (car frame)))
-  (set-mcdr! frame (cons val (cdr frame))))
+  (set-mcar! frame (cons var (frame-variables frame)))
+  (set-mcdr! frame (cons val (frame-values frame))))
 
 ; Extending environment is create a new frame with initial vars/vals on top of a base environment.
 (define (extend-environment vars vals base-env)
