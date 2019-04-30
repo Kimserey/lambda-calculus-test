@@ -1,32 +1,6 @@
 #lang racket
 
 ; **
-; cons'
-; **
-
-(define (cons x y)
-  (define (set-x! v) (set! x v))
-  (define (set-y! v) (set! y v))
-  (define (dispatch m)
-    (cond [(eq? m 'car) x]
-          [(eq? m 'cdr) y]
-          [(eq? m 'set-car!) set-x!]
-          [(eq? m 'set-cdr!) set-y!]
-          [else (error "Undefined operation: CONS" m)]))
-  dispatch)
-
-(define (car z) (z 'car))
-(define (cdr z) (z 'cdr))
-(define (caar z) ((z 'car) 'car))
-
-(define (set-car! z v)
-  ((z 'set-car!) v)
-  z)
-  
-(define (set-cdr! z v)
-  ((z 'set-cdr!) v)
-  z)
-; **
 ; Eval and Apply
 ; **
 
@@ -301,8 +275,8 @@
 ; adding a new variable in the frame-variables
 ; and a new value in the frame-values.
 (define (add-binding-to-frame! var val frame)
-  (set-car! frame (cons var (car frame)))
-  (set-cdr! frame (cons val (cdr frame))))
+  (set-mcar! frame (cons var (car frame)))
+  (set-mcdr! frame (cons val (cdr frame))))
 
 ; Extending environment is create a new frame with initial vars/vals on top of a base environment.
 (define (extend-environment vars vals base-env)
@@ -336,7 +310,7 @@
   (define (env-loop env)
     (define (scan vars vals)
       (cond [(null? vars) (env-loop (enclosing-environment env))]
-            [(eq? var (car vars)) (set-car! vals val)]
+            [(eq? var (car vars)) (set-mcar! vals val)]
             [else (scan (cdr vars) (cdr vals))]))
     (if (eq? env the-empty-environment)
         (error "Unbound variable: SET!" var)
@@ -352,8 +326,8 @@
   (let ([frame (first-frame env)])
     (define (scan vars vals)
       (cond [(null? vars) (add-binding-to-frame! var val frame)]
-            [(eq? var (car vars)) (set-car! vals val)]
-            [else (scan (cdr vars) (cdr vals))]))
+            [(eq? var (car vars)) (set-mcar! vals val)]
+            [else (scan (cdr vars) (mcdr vals))]))
     (scan (frame-variables frame)
           (frame-values frame))))
 
