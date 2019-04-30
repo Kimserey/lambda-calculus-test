@@ -48,9 +48,8 @@
           (procedure-body procedure)
           (extend-environment
            (procedure-parameters procedure)
-           procedure)
-          arguments
-          (procedure-environment procedure))]
+           arguments
+           (procedure-environment procedure)))]
         [else
          (error "Unknown procedure type: APPLY" procedure)]))
 
@@ -261,7 +260,7 @@
 
 (define (first-frame env) (car env))
 
-(define the-empty-environment '())
+(define the-empty-environment 'the-empty-environment)
 
 ; Frames in the environment are composed of a tuple of list of variables and list of values.
 (define (make-frame variables values)
@@ -407,3 +406,5 @@
       (display object)))
 
 (define the-global-environment (setup-environment))
+
+(driver-loop)
