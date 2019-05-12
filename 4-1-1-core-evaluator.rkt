@@ -4,8 +4,6 @@
 ; Eval and Apply
 ; **
 
-(define apply-in-underlying-scheme apply)
-
 (define (eval exp env)
   (cond [(self-evaluating? exp)
          exp]
@@ -368,10 +366,9 @@
        primitive-procedures))
 
 (define (apply-primitive-procedure proc args)
-  (apply-in-underlying-scheme
-   (primitive-implementation proc) args))
+  (apply (primitive-implementation proc) args))
 
-(define the-global-envrionment (setup-environment))
+(define the-global-environment (setup-environment))
 
 (define input-prompt ";;; M-Eval input:")
 
@@ -405,10 +402,8 @@
              '<procedure-env>))
       (display object)))
 
-(define the-global-environment (setup-environment))
-
 ;; Run the evaluator:
-; (driver-loop)
+(driver-loop)
 
 ;;; M-Eval input:
 ; (define (append x y)
