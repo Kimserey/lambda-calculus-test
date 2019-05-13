@@ -234,9 +234,6 @@
 (define (true? x)
   (not (eq? x false)))
 
-(define (false? x)
-  (eq? x false))
-
 ; Procedures are composed of the parameters, the body, and the environment where they were defined.
 (define (make-procedure parameters body env)
   (list 'procedure parameters body env))
