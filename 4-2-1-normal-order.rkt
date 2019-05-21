@@ -391,7 +391,7 @@
 (define (driver-loop)
   (prompt-for-input input-prompt)
   (let ([input (read)])
-    (let ([output (eval input the-global-environment)])
+    (let ([output (actual-value input the-global-environment)])
       (announce-output output-prompt)
       (user-print output)))
   (driver-loop))
