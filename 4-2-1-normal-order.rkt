@@ -29,37 +29,54 @@
         [(cond? exp)
          (eval (cond->if exp) env)]
         [(application? exp)
-         (apply-local (eval (operator exp) env)
-                (list-of-values
-                 (operands exp)
-                 env))]
+         (apply-local
+          (actual-value (operator exp) env)
+          (operands exp) ; Instead of evaluating the operands, we pass them directly to apply-local
+          env)] ; Apply-local needs the environment as the delayed operands will need to be evaluated when needed
         [else
          (error "Unknown expression type: EVAL" exp)]))
 
-(define (apply-local procedure arguments)
+(define (apply-local procedure arguments env)
   (cond [(primitive-procedure? procedure)
          (apply-primitive-procedure
           procedure
-          arguments)]
+          (list-of-args-values arguments env))] ; For primitive procedures, we evaluate directly as applicative-order
         [(compound-procedure? procedure)
          (eval-sequence
           (procedure-body procedure)
           (extend-environment
            (procedure-parameters procedure)
-           arguments
+           (list-of-delayed-args arguments env) ; All arguments are delayed
            (procedure-environment procedure)))]
         [else
          (error "Unknown procedure type: APPLY" procedure)]))
 
-(define (list-of-values exps env)
+(define (actual-value exp env)
+  (force-it (eval exp env)))
+
+(define (list-of-args-values exps env)
   (if (no-operands? exps)
       '()
-      (cons (eval (first-operand exps) env)
-            (list-of-values (rest-operands exps) env))))
+      (cons (actual-value
+             (first-operand exps)
+             env)
+            (list-of-args-values
+             (rest-operands exps)
+             env))))
 
+(define (list-of-delayed-args exps env)
+  (if (no-operands? exps)
+      '()
+      (cons (delay-it
+             (first-operand exps)
+             env)
+            (list-of-delayed-args
+             (rest-operands exps)
+             env))))
+      
 ; Conditional
 (define (eval-if exp env)
-  (if (true? (eval (if-predicate exp) env))
+  (if (true? (actual-value (if-predicate exp) env))
       (eval (if-consequent exp) env)
       (eval (if-alternative exp) env)))
 
